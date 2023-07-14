@@ -112,20 +112,22 @@ export class HomeComponent implements OnInit, OnDestroy {
         observer.next(count++);
       },1000)
     });
+    // observable takes all the normal, error and, completed cases and loops them
+    // in a foreach to execute every subscriptor
 
     this.customNewObsSubscription2 = customIntervalObservable3
     .subscribe(
       dat =>
       {
-        console.error(dat);
-      },
+        console.log(dat);
+      },// normally -every 1000ms in this case- we do this
       error => {
         console.log(error);
         alert(error.message)
-      },
+      },//in observer.error case we do these 
       () => {
         console.log('Completed!')
-      }
+      }//in observe.complete case we do this
     )
 
   }
