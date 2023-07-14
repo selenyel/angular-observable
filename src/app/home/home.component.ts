@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observer, Subscription, interval } from 'rxjs';
 import { Observable } from 'rxjs-compat';
 import { count } from 'rxjs-compat/operator/count';
+import { filter, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -64,33 +65,33 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // This is depricated so I will write what I found in here
 
-    const customIntervalObservable2 = new Observable<typeof this.A>((observer) => {
-      let count = 0;
-      setInterval( () => {
-        if(count == 2){
-          observer.complete();
-        }
-        if(count > 3){
-          observer.error(new Error('Count is greater than 3!'));
-        }
-        observer.next(count++);
-      },1000)
-    });
+    // const customIntervalObservable2 = new Observable<typeof this.A>((observer) => {
+    //   let count = 0;
+    //   setInterval( () => {
+    //     if(count == 2){
+    //       observer.complete();
+    //     }
+    //     if(count > 3){
+    //       observer.error(new Error('Count is greater than 3!'));
+    //     }
+    //     observer.next(count++);
+    //   },1000)
+    // });
 
-    this.customNewObsSubscription = customIntervalObservable2
-    .subscribe(
-      dat =>
-      {
-        console.error(dat);
-      },
-      error => {
-        console.log(error);
-        alert(error.message)
-      },
-      () => {
-        console.log('Completed!')
-      }
-    )
+    // this.customNewObsSubscription = customIntervalObservable2
+    // .subscribe(
+    //   dat =>
+    //   {
+    //     console.error(dat);
+    //   },
+    //   error => {
+    //     console.log(error);
+    //     alert(error.message)
+    //   },
+    //   () => {
+    //     console.log('Completed!')
+    //   }
+    // )
 
 
 
@@ -115,7 +116,23 @@ export class HomeComponent implements OnInit, OnDestroy {
     // observable takes all the normal, error and, completed cases and loops them
     // in a foreach to execute every subscriptor
 
+    // customIntervalObservable3.pipe(map( (dat) => {
+    //   return 'Round :' + (dat +1);
+    // }));
+    // Pipe method is built in in RxJs
+
     this.customNewObsSubscription2 = customIntervalObservable3
+    .pipe(
+      filter(
+        (dat) => {
+          return dat > 0
+        }
+      )
+      ,
+      map( 
+        (dat : number) => {
+      return 'Round :' + (dat +1);
+    }))
     .subscribe(
       dat =>
       {
