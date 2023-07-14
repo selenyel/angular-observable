@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription, interval } from 'rxjs';
+import { Observer, Subscription, interval } from 'rxjs';
+import { Observable } from 'rxjs-compat';
 import { count } from 'rxjs-compat/operator/count';
 
 @Component({
@@ -7,7 +8,10 @@ import { count } from 'rxjs-compat/operator/count';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
+
 export class HomeComponent implements OnInit, OnDestroy {
+
+  private A : number
 
   private firstObsSubscription : Subscription;
   // This is where we store our subscriptions!
@@ -15,12 +19,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   // We create a new interval observable
   // To track them we need to store them
 
+  private customNewObsSubscription : Subscription;
+
+
   constructor() { }
 
   ngOnInit() {
-    this.firstObsSubscription = interval(1000).subscribe(count => {
-      console.log(count);
-    })
+    
+    // 1)
+
+    // this.firstObsSubscription = interval(1000).subscribe(count => {
+    //   console.log(count);
+    // })
+
     // This is interval, it gets a number which corresponds to miliseconds
     // Let's call it A
     // Each A time interval emits an another number
@@ -32,11 +43,44 @@ export class HomeComponent implements OnInit, OnDestroy {
     // it keeps counting
     // so if we don't need this, it causes a Memory Leak!
     // So we need to Unsubscribe from it!
+
+    // 2)
+
+    // Custom interval
+
+    const customIntervalObservable = Observable.create(observer =>{
+      let count = 0;
+      setInterval( () => {
+        observer.next(count++);
+      },1000)
+    })
+
+    this.firstObsSubscription = customIntervalObservable.subscribe( data => {
+      console.log(data);
+    });
+
+    // 3)
+
+    // This is depricated so I will write what I found in here
+
+    const customIntervalObservable2 = new Observable<typeof this.A>((observer) => {
+      let count = 0;
+      setInterval( () => {
+        observer.next(count++);
+      },1000)
+    });
+
+    this.customNewObsSubscription = customIntervalObservable2.subscribe(dat =>{
+      console.error(dat);
+    })
+
   }
 
   ngOnDestroy():void{
     this.firstObsSubscription.unsubscribe();
     // This means whenever we leave the component we clear that subscription!
+
+    this.customNewObsSubscription.unsubscribe();
   }
 
 }
