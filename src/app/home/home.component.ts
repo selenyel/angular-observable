@@ -20,6 +20,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   // To track them we need to store them
 
   private customNewObsSubscription : Subscription;
+  private customNewObsSubscription2: Subscription;
 
 
   constructor() { }
@@ -48,16 +49,16 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // Custom interval
 
-    const customIntervalObservable = Observable.create(observer =>{
-      let count = 0;
-      setInterval( () => {
-        observer.next(count++);
-      },1000)
-    })
+    // const customIntervalObservable = Observable.create(observer =>{
+    //   let count = 0;
+    //   setInterval( () => {
+    //     observer.next(count++);
+    //   },1000)
+    // })
 
-    this.firstObsSubscription = customIntervalObservable.subscribe( data => {
-      console.log(data);
-    });
+    // this.firstObsSubscription = customIntervalObservable.subscribe( data => {
+    //   console.log(data);
+    // });
 
     // 3)
 
@@ -66,13 +67,66 @@ export class HomeComponent implements OnInit, OnDestroy {
     const customIntervalObservable2 = new Observable<typeof this.A>((observer) => {
       let count = 0;
       setInterval( () => {
+        if(count == 2){
+          observer.complete();
+        }
+        if(count > 3){
+          observer.error(new Error('Count is greater than 3!'));
+        }
         observer.next(count++);
       },1000)
     });
 
-    this.customNewObsSubscription = customIntervalObservable2.subscribe(dat =>{
-      console.error(dat);
-    })
+    this.customNewObsSubscription = customIntervalObservable2
+    .subscribe(
+      dat =>
+      {
+        console.error(dat);
+      },
+      error => {
+        console.log(error);
+        alert(error.message)
+      },
+      () => {
+        console.log('Completed!')
+      }
+    )
+
+
+
+    // 4) 
+
+    // This is the same thing but our complete condition is unreachable
+    // So it never fires Completed! in the .subscribe method
+    // In the end it fires an error handling console log 
+
+    const customIntervalObservable3 = new Observable<typeof this.A>((observer) => {
+      let count = 0;
+      setInterval( () => {
+        if(count == 5){
+          observer.complete();
+        }
+        if(count > 3){
+          observer.error(new Error('Count is greater than 3!'));
+        }
+        observer.next(count++);
+      },1000)
+    });
+
+    this.customNewObsSubscription2 = customIntervalObservable3
+    .subscribe(
+      dat =>
+      {
+        console.error(dat);
+      },
+      error => {
+        console.log(error);
+        alert(error.message)
+      },
+      () => {
+        console.log('Completed!')
+      }
+    )
 
   }
 
@@ -81,6 +135,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     // This means whenever we leave the component we clear that subscription!
 
     this.customNewObsSubscription.unsubscribe();
+    
+    this.customNewObsSubscription2.unsubscribe();
   }
 
 }
